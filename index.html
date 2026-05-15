@@ -980,7 +980,7 @@ function renderGrid(filtered) {
     <div class="card-tile ${getSeriesClass(c.series)}" onclick="openCard(${c.id})">
       ${c.grade ? `<div class="grade-badge">${c.grade}</div>` : ''}
       <div class="image-wrap">
-        <img src="${c.image}" alt="${c.name}" loading="lazy" style="${c.rotation ? 'transform:rotate('+c.rotation+'deg)' : ''}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 280%22><rect fill=%22%231a1a3a%22 width=%22200%22 height=%22280%22/><text fill=%22%23666%22 x=%22100%22 y=%22140%22 text-anchor=%22middle%22 font-size=%2214%22>No Image</text></svg>'">
+        <img src="${c.image}" alt="${c.name}" loading="lazy" style="${imgTransform(c.rotation, 0.75)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 280%22><rect fill=%22%231a1a3a%22 width=%22200%22 height=%22280%22/><text fill=%22%23666%22 x=%22100%22 y=%22140%22 text-anchor=%22middle%22 font-size=%2214%22>No Image</text></svg>'">
       </div>
       <div class="card-info">
         <div class="card-number">#${c.number}</div>
@@ -999,7 +999,7 @@ function renderTable(filtered) {
   const tbody = document.getElementById('card-tbody');
   tbody.innerHTML = filtered.map(c => `
     <tr onclick="openCard(${c.id})">
-      <td><img class="thumb" src="${c.image}" alt="" style="${c.rotation ? 'transform:rotate('+c.rotation+'deg)' : ''}" onerror="this.style.display='none'"></td>
+      <td><img class="thumb" src="${c.image}" alt="" style="${imgTransform(c.rotation, 0.76)}" onerror="this.style.display='none'"></td>
       <td><span class="card-number ${getSeriesClass(c.series)}" style="font-size:0.85rem">#${c.number}</span></td>
       <td>${c.name}</td>
       <td style="color:var(--text-muted);font-size:0.85rem">${c.series}</td>
@@ -1035,7 +1035,7 @@ function openCard(id) {
 
   document.getElementById('modal-title').textContent = `#${card.number} — ${card.name}`;
   document.getElementById('modal-img').src = card.image;
-  document.getElementById('modal-img').style.transform = `rotate(${card.rotation || 0}deg)`;
+  document.getElementById('modal-img').setAttribute('style', imgTransform(card.rotation, 0.85));
 
   const fields = document.getElementById('modal-fields');
   fields.innerHTML = `
@@ -1232,7 +1232,7 @@ function rotateCard(deg) {
   const card = cards.find(c => c.id === currentCardId);
   if (!card) return;
   card.rotation = ((card.rotation || 0) + deg + 360) % 360;
-  document.getElementById('modal-img').style.transform = `rotate(${card.rotation}deg)`;
+  document.getElementById('modal-img').setAttribute('style', imgTransform(card.rotation, 0.85));
   save();
   renderCards();
 }
@@ -1371,6 +1371,15 @@ document.addEventListener('keydown', e => {
   if (document.getElementById('add-modal').classList.contains('open') && e.key === 'Escape') closeAddModal();
   if (document.getElementById('settings-modal').classList.contains('open') && e.key === 'Escape') closeSettings();
 });
+
+function imgTransform(rotation, containerRatio) {
+  if (!rotation) return '';
+  const r = rotation % 360;
+  const sideways = (r === 90 || r === 270);
+  if (!sideways) return `transform:rotate(${r}deg)`;
+  const scale = containerRatio || 0.75;
+  return `transform:rotate(${r}deg) scale(${scale})`;
+}
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
