@@ -383,15 +383,23 @@ button.danger:hover { background: #d94a4a22; }
   max-height: 500px;
   object-fit: contain;
   border-radius: 4px;
+  transition: transform 0.3s ease;
 }
 
-.modal-image .replace-btn {
+.modal-image .image-controls {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.modal-image .image-controls button {
   background: rgba(0,0,0,0.7);
   font-size: 0.8rem;
 }
+
+.modal-image .rotate-btn { padding: 0.5rem 0.6rem; font-size: 1rem; line-height: 1; }
 
 .modal-fields {
   padding: 1.5rem;
@@ -621,7 +629,11 @@ button.danger:hover { background: #d94a4a22; }
     <div class="modal-body">
       <div class="modal-image">
         <img id="modal-img" src="" alt="">
-        <button class="replace-btn" onclick="triggerImageReplace()">Replace Image</button>
+        <div class="image-controls">
+          <button class="rotate-btn" onclick="rotateCard(-90)" title="Rotate left">&#8634;</button>
+          <button class="rotate-btn" onclick="rotateCard(90)" title="Rotate right">&#8635;</button>
+          <button onclick="triggerImageReplace()">Replace Image</button>
+        </div>
       </div>
       <div class="modal-fields" id="modal-fields"></div>
     </div>
@@ -792,7 +804,7 @@ function renderGrid(filtered) {
     <div class="card-tile ${getSeriesClass(c.series)}" onclick="openCard(${c.id})">
       ${c.grade ? `<div class="grade-badge">${c.grade}</div>` : ''}
       <div class="image-wrap">
-        <img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 280%22><rect fill=%22%231a1a3a%22 width=%22200%22 height=%22280%22/><text fill=%22%23666%22 x=%22100%22 y=%22140%22 text-anchor=%22middle%22 font-size=%2214%22>No Image</text></svg>'">
+        <img src="${c.image}" alt="${c.name}" loading="lazy" style="${c.rotation ? 'transform:rotate('+c.rotation+'deg)' : ''}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 280%22><rect fill=%22%231a1a3a%22 width=%22200%22 height=%22280%22/><text fill=%22%23666%22 x=%22100%22 y=%22140%22 text-anchor=%22middle%22 font-size=%2214%22>No Image</text></svg>'">
       </div>
       <div class="card-info">
         <div class="card-number">#${c.number}</div>
@@ -811,7 +823,7 @@ function renderTable(filtered) {
   const tbody = document.getElementById('card-tbody');
   tbody.innerHTML = filtered.map(c => `
     <tr onclick="openCard(${c.id})">
-      <td><img class="thumb" src="${c.image}" alt="" onerror="this.style.display='none'"></td>
+      <td><img class="thumb" src="${c.image}" alt="" style="${c.rotation ? 'transform:rotate('+c.rotation+'deg)' : ''}" onerror="this.style.display='none'"></td>
       <td><span class="card-number ${getSeriesClass(c.series)}" style="font-size:0.85rem">#${c.number}</span></td>
       <td>${c.name}</td>
       <td style="color:var(--text-muted);font-size:0.85rem">${c.series}</td>
@@ -847,6 +859,7 @@ function openCard(id) {
 
   document.getElementById('modal-title').textContent = `#${card.number} — ${card.name}`;
   document.getElementById('modal-img').src = card.image;
+  document.getElementById('modal-img').style.transform = `rotate(${card.rotation || 0}deg)`;
 
   const fields = document.getElementById('modal-fields');
   fields.innerHTML = `
@@ -1013,6 +1026,17 @@ function handleImageReplace(e) {
   e.target.value = '';
 }
 
+// ── Rotate ──
+
+function rotateCard(deg) {
+  const card = cards.find(c => c.id === currentCardId);
+  if (!card) return;
+  card.rotation = ((card.rotation || 0) + deg + 360) % 360;
+  document.getElementById('modal-img').style.transform = `rotate(${card.rotation}deg)`;
+  save();
+  renderCards();
+}
+
 // ── Add Card ──
 
 function openAddCard() {
@@ -1036,7 +1060,7 @@ function addNewCard() {
     id: maxId + 1, number, name, series,
     image: '', grade: '', value: '',
     valueRangeLow: '', valueRangeHigh: '',
-    notes: '', customFields: {}
+    notes: '', rotation: 0, customFields: {}
   };
 
   const fileInput = document.getElementById('add-image');
