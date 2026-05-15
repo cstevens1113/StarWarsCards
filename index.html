@@ -561,6 +561,16 @@ button.danger:hover { background: #d94a4a22; }
   .card-table-wrap { padding: 1rem; }
 }
 
+/* ── Sync indicator ── */
+.sync-dot {
+  width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 0.4rem;
+}
+.sync-dot.ok { background: var(--green); }
+.sync-dot.saving { background: var(--yellow); animation: pulse 0.8s infinite; }
+.sync-dot.error { background: var(--red); }
+.sync-dot.offline { background: var(--text-muted); }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
 /* ── File input hidden ── */
 .hidden-input { display: none; }
 </style>
@@ -573,6 +583,7 @@ button.danger:hover { background: #d94a4a22; }
     <div class="header-actions">
       <div class="stats" id="stats"></div>
       <button onclick="openAddCard()">+ Add Card</button>
+      <button onclick="openSettings()">Settings</button>
       <div class="dropdown">
         <button onclick="toggleDropdown(this)">Import / Export</button>
         <div class="dropdown-menu">
@@ -688,10 +699,42 @@ button.danger:hover { background: #d94a4a22; }
   </div>
 </div>
 
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h2>Settings</h2>
+      <button class="modal-close" onclick="closeSettings()">&times;</button>
+    </div>
+    <div class="add-card-section">
+      <div class="field-group">
+        <label>GitHub Personal Access Token</label>
+        <input type="password" id="settings-pat" placeholder="ghp_... or github_pat_...">
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">
+        Required to save changes for all users. Your token is stored only in your browser and never sent anywhere except the GitHub API.
+        Needs <strong>Contents: Read &amp; Write</strong> permission on the StarWarsCards repo.
+      </p>
+      <div class="field-group">
+        <label>Sync Status</label>
+        <div id="sync-status" style="font-size:0.85rem;color:var(--text-muted)">Checking...</div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:0.5rem;justify-content:flex-end">
+        <button onclick="forceRefresh()">Refresh from GitHub</button>
+        <button class="primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
 <script>
+const GITHUB_OWNER = 'cstevens1113';
+const GITHUB_REPO = 'StarWarsCards';
+const DATA_FILE = 'collection-data.json';
+
 let cards = [];
 let currentCardId = null;
 let currentView = 'grid';
@@ -699,23 +742,156 @@ let sortKey = 'number';
 let sortDir = 1;
 let activeFilter = 'All';
 let customFieldDefs = [];
+let fileSha = null;
+let saveTimeout = null;
 
-function init() {
-  const saved = localStorage.getItem('sw_cards_data');
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    cards = parsed.cards || parsed;
-    customFieldDefs = parsed.customFieldDefs || [];
-  } else {
+function getToken() { return localStorage.getItem('sw_github_pat') || ''; }
+
+async function init() {
+  try {
+    await loadFromGitHub();
+  } catch (e) {
+    console.warn('GitHub fetch failed, using bundled data:', e);
     cards = JSON.parse(JSON.stringify(CARDS_DATA));
+    cards.forEach(c => { if (!c.rotation) c.rotation = 0; });
   }
   buildFilters();
   renderCards();
   updateStats();
+  updateSyncUI();
+}
+
+async function loadFromGitHub() {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}`;
+  const headers = { 'Accept': 'application/vnd.github.v3+json' };
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const resp = await fetch(url, { headers });
+  if (!resp.ok) throw new Error(`GitHub API ${resp.status}`);
+  const meta = await resp.json();
+  fileSha = meta.sha;
+
+  const content = atob(meta.content.replace(/\n/g, ''));
+  const data = JSON.parse(content);
+  cards = data.cards || [];
+  customFieldDefs = data.customFieldDefs || [];
 }
 
 function save() {
-  localStorage.setItem('sw_cards_data', JSON.stringify({ cards, customFieldDefs }));
+  localStorage.setItem('sw_cards_local', JSON.stringify({ cards, customFieldDefs }));
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => saveToGitHub(), 1500);
+}
+
+async function saveToGitHub() {
+  const token = getToken();
+  if (!token) {
+    toast('Set your GitHub token in Settings to save for all users');
+    updateSyncUI('offline');
+    return;
+  }
+
+  updateSyncUI('saving');
+
+  const payload = JSON.stringify({ cards, customFieldDefs }, null, 2);
+  const encoded = btoa(unescape(encodeURIComponent(payload)));
+
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}`;
+    const body = {
+      message: 'Update collection data',
+      content: encoded,
+      branch: 'main'
+    };
+    if (fileSha) body.sha = fileSha;
+
+    const resp = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.message || `HTTP ${resp.status}`);
+    }
+
+    const result = await resp.json();
+    fileSha = result.content.sha;
+    updateSyncUI('ok');
+    toast('Saved for all users');
+  } catch (e) {
+    console.error('GitHub save failed:', e);
+    updateSyncUI('error');
+    toast('Save failed: ' + e.message);
+  }
+}
+
+function updateSyncUI(state) {
+  const token = getToken();
+  if (!state) {
+    state = token ? 'ok' : 'offline';
+  }
+  const labels = { ok: 'Synced', saving: 'Saving...', error: 'Save failed', offline: 'Local only' };
+  const statusEl = document.getElementById('sync-status');
+  if (statusEl) statusEl.innerHTML = `<span class="sync-dot ${state}"></span>${labels[state]}`;
+  const statsEl = document.getElementById('stats');
+  if (statsEl) {
+    let existing = statsEl.querySelector('.sync-indicator');
+    if (!existing) {
+      existing = document.createElement('span');
+      existing.className = 'sync-indicator';
+      existing.style.cssText = 'margin-left:0.75rem;font-size:0.8rem';
+      statsEl.appendChild(existing);
+    }
+    existing.innerHTML = `<span class="sync-dot ${state}"></span>${labels[state]}`;
+  }
+}
+
+// ── Settings ──
+
+function openSettings() {
+  document.getElementById('settings-pat').value = getToken();
+  updateSyncUI();
+  document.getElementById('settings-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function saveSettings() {
+  const pat = document.getElementById('settings-pat').value.trim();
+  if (pat) {
+    localStorage.setItem('sw_github_pat', pat);
+    toast('Token saved');
+  } else {
+    localStorage.removeItem('sw_github_pat');
+    toast('Token removed');
+  }
+  updateSyncUI();
+  closeSettings();
+}
+
+async function forceRefresh() {
+  try {
+    await loadFromGitHub();
+    buildFilters();
+    renderCards();
+    updateStats();
+    updateSyncUI('ok');
+    toast('Refreshed from GitHub');
+  } catch (e) {
+    toast('Refresh failed: ' + e.message);
+    updateSyncUI('error');
+  }
 }
 
 function toast(msg) {
@@ -1171,6 +1347,7 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowRight') navigateCard(1);
   }
   if (document.getElementById('add-modal').classList.contains('open') && e.key === 'Escape') closeAddModal();
+  if (document.getElementById('settings-modal').classList.contains('open') && e.key === 'Escape') closeSettings();
 });
 
 function escHtml(s) {
