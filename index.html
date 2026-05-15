@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1977 Topps Star Wars Card Collection</title>
+<style>
+:root {
+  --bg: #0a0a1a;
+  --surface: #12122a;
+  --surface2: #1a1a3a;
+  --border: #2a2a4a;
+  --text: #e0e0f0;
+  --text-muted: #8888aa;
+  --accent: #ffd700;
+  --accent-dim: #b8960033;
+  --blue: #4a90d9;
+  --red: #d94a4a;
+  --green: #4ad94a;
+  --yellow: #d9d94a;
+  --orange: #d9904a;
+  --series1: #4a90d9;
+  --series2: #d94a4a;
+  --series3: #d9d94a;
+  --series4: #4ad94a;
+  --series5: #d9904a;
+  --sticker: #9a4ad9;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+header {
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 1.5rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+h1 {
+  font-size: 1.5rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+h1 span { color: var(--text-muted); font-weight: 400; font-size: 0.85rem; margin-left: 0.5rem; }
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.stats {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-right: 1rem;
+  white-space: nowrap;
+}
+
+.stats strong { color: var(--accent); }
+
+/* ── Buttons ── */
+button, .btn {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+button:hover { background: var(--border); border-color: var(--accent); }
+button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+button.primary:hover { background: #ffe555; }
+button.danger { border-color: var(--red); color: var(--red); }
+button.danger:hover { background: #d94a4a22; }
+
+/* ── Toolbar ── */
+.toolbar {
+  max-width: 1400px;
+  margin: 1rem auto;
+  padding: 0 2rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.6rem 1rem 0.6rem 2.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.search-box input:focus { border-color: var(--accent); }
+.search-box::before {
+  content: "\1F50D";
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+}
+
+.filter-group {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.filter-btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  border-radius: 20px;
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0;
+}
+
+.view-toggle button {
+  border-radius: 0;
+  padding: 0.5rem 0.75rem;
+}
+
+.view-toggle button:first-child { border-radius: 6px 0 0 6px; }
+.view-toggle button:last-child { border-radius: 0 6px 6px 0; }
+.view-toggle button.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+/* ── Grid View ── */
+.card-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.card-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+}
+
+.card-tile:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.15);
+}
+
+.card-tile .image-wrap {
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-tile .image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.card-tile .card-info {
+  padding: 0.75rem;
+}
+
+.card-number {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 0.35rem;
+}
+
+.series-1 .card-number { background: var(--series1); color: #fff; }
+.series-2 .card-number { background: var(--series2); color: #fff; }
+.series-3 .card-number { background: var(--series3); color: #000; }
+.series-4 .card-number { background: var(--series4); color: #000; }
+.series-5 .card-number { background: var(--series5); color: #fff; }
+.series-sticker .card-number { background: var(--sticker); color: #fff; }
+
+.card-tile .card-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 0.25rem;
+}
+
+.card-tile .card-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.card-tile .grade-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0,0,0,0.8);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+}
+
+/* ── Table View ── */
+.card-table-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+  overflow-x: auto;
+  display: none;
+}
+
+.card-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.card-table th {
+  background: var(--surface2);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 72px;
+  z-index: 10;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.card-table th:hover { color: var(--accent); }
+.card-table th .sort-arrow { margin-left: 0.3rem; opacity: 0.4; }
+.card-table th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
+
+.card-table td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.card-table tr { cursor: pointer; transition: background 0.15s; }
+.card-table tbody tr:hover { background: var(--surface2); }
+
+.card-table .thumb {
+  width: 50px;
+  height: 66px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* ── Detail Modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  max-width: 900px;
+  width: 100%;
+  margin: 2rem auto;
+  overflow: hidden;
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 { font-size: 1.25rem; color: var(--accent); }
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.modal-close:hover { color: var(--text); }
+
+.modal-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.modal-image {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  position: relative;
+  min-height: 400px;
+}
+
+.modal-image img {
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.modal-image .replace-btn {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(0,0,0,0.7);
+  font-size: 0.8rem;
+}
+
+.modal-fields {
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.field-group {
+  margin-bottom: 1rem;
+}
+
+.field-group label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.field-group input, .field-group textarea, .field-group select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.field-group input:focus, .field-group textarea:focus, .field-group select:focus {
+  border-color: var(--accent);
+}
+
+.field-group textarea { resize: vertical; min-height: 80px; }
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.custom-fields-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1.25rem 0 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.custom-fields-header h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.custom-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr auto;
+  gap: 0.5rem;
+  align-items: end;
+  margin-bottom: 0.5rem;
+}
+
+.custom-field-row button {
+  padding: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-arrows { display: flex; gap: 0.5rem; }
+
+/* ── Add Card Modal ── */
+.add-card-section {
+  padding: 1.5rem;
+}
+
+/* ── Import/Export ── */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 180px;
+  padding: 0.5rem 0;
+  z-index: 200;
+  margin-top: 0.25rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.dropdown-menu.open { display: block; }
+
+.dropdown-menu button {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  padding: 0.6rem 1rem;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.dropdown-menu button:hover { background: var(--surface2); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--accent);
+  color: #000;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 9999;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+
+.empty-state p { font-size: 1.1rem; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  header { padding: 1rem; }
+  .header-content { flex-direction: column; align-items: flex-start; }
+  .toolbar { padding: 0 1rem; }
+  .card-grid { padding: 1rem; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+  .modal-body { grid-template-columns: 1fr; }
+  .modal-image { min-height: 250px; }
+  .card-table-wrap { padding: 1rem; }
+}
+
+/* ── File input hidden ── */
+.hidden-input { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <h1>1977 Topps Star Wars <span>Card Collection</span></h1>
+    <div class="header-actions">
+      <div class="stats" id="stats"></div>
+      <button onclick="openAddCard()">+ Add Card</button>
+      <div class="dropdown">
+        <button onclick="toggleDropdown(this)">Import / Export</button>
+        <div class="dropdown-menu">
+          <button onclick="exportJSON()">Export JSON</button>
+          <button onclick="exportCSV()">Export CSV</button>
+          <button onclick="document.getElementById('import-file').click()">Import JSON</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<input type="file" id="import-file" class="hidden-input" accept=".json" onchange="importJSON(event)">
+<input type="file" id="replace-image-input" class="hidden-input" accept="image/*" onchange="handleImageReplace(event)">
+
+<div class="toolbar">
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Search cards by name, number, or notes..." oninput="renderCards()">
+  </div>
+  <div class="filter-group" id="filters"></div>
+  <div class="view-toggle">
+    <button class="active" onclick="setView('grid', this)" title="Grid view">&#9638;</button>
+    <button onclick="setView('table', this)" title="Table view">&#9776;</button>
+  </div>
+</div>
+
+<div class="card-grid" id="card-grid"></div>
+
+<div class="card-table-wrap" id="card-table-wrap">
+  <table class="card-table">
+    <thead>
+      <tr>
+        <th onclick="sortTable('image')">Image</th>
+        <th onclick="sortTable('number')"># <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortTable('name')">Name <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortTable('series')">Series <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortTable('grade')">Grade <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortTable('value')">Value <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortTable('valueRangeLow')">Value Range <span class="sort-arrow">&#9650;</span></th>
+        <th onclick="sortTable('notes')">Notes <span class="sort-arrow">&#9650;</span></th>
+      </tr>
+    </thead>
+    <tbody id="card-tbody"></tbody>
+  </table>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detail-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title"></h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-image">
+        <img id="modal-img" src="" alt="">
+        <button class="replace-btn" onclick="triggerImageReplace()">Replace Image</button>
+      </div>
+      <div class="modal-fields" id="modal-fields"></div>
+    </div>
+    <div class="modal-footer">
+      <div class="nav-arrows">
+        <button onclick="navigateCard(-1)">&#8592; Prev</button>
+        <button onclick="navigateCard(1)">Next &#8594;</button>
+      </div>
+      <div style="display:flex;gap:0.5rem">
+        <button class="danger" onclick="deleteCard()">Delete</button>
+        <button class="primary" onclick="saveCard()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Card Modal -->
+<div class="modal-overlay" id="add-modal" onclick="if(event.target===this)closeAddModal()">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h2>Add New Card</h2>
+      <button class="modal-close" onclick="closeAddModal()">&times;</button>
+    </div>
+    <div class="add-card-section">
+      <div class="field-group">
+        <label>Card Number</label>
+        <input type="text" id="add-number" placeholder="e.g. 66 or S4">
+      </div>
+      <div class="field-group">
+        <label>Card Name</label>
+        <input type="text" id="add-name" placeholder="e.g. Jawas of Tatooine">
+      </div>
+      <div class="field-group">
+        <label>Series</label>
+        <select id="add-series">
+          <option>Series 1 (Blue)</option>
+          <option>Series 2 (Red)</option>
+          <option>Series 3 (Yellow)</option>
+          <option>Series 4 (Green)</option>
+          <option>Series 5 (Orange)</option>
+          <option>Stickers</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Image</label>
+        <input type="file" id="add-image" accept="image/*">
+      </div>
+      <div style="margin-top:1rem;text-align:right">
+        <button class="primary" onclick="addNewCard()">Add Card</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script>
+let cards = [];
+let currentCardId = null;
+let currentView = 'grid';
+let sortKey = 'number';
+let sortDir = 1;
+let activeFilter = 'All';
+let customFieldDefs = [];
+
+function init() {
+  const saved = localStorage.getItem('sw_cards_data');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    cards = parsed.cards || parsed;
+    customFieldDefs = parsed.customFieldDefs || [];
+  } else {
+    cards = JSON.parse(JSON.stringify(CARDS_DATA));
+  }
+  buildFilters();
+  renderCards();
+  updateStats();
+}
+
+function save() {
+  localStorage.setItem('sw_cards_data', JSON.stringify({ cards, customFieldDefs }));
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function updateStats() {
+  const graded = cards.filter(c => c.grade).length;
+  const valued = cards.filter(c => c.value).length;
+  const totalVal = cards.reduce((s, c) => s + (parseFloat(c.value) || 0), 0);
+  let html = `<strong>${cards.length}</strong> cards`;
+  if (graded) html += ` &middot; <strong>${graded}</strong> graded`;
+  if (totalVal > 0) html += ` &middot; Est. value: <strong>$${totalVal.toLocaleString()}</strong>`;
+  document.getElementById('stats').innerHTML = html;
+}
+
+function getSeriesClass(series) {
+  if (series.includes('1')) return 'series-1';
+  if (series.includes('2')) return 'series-2';
+  if (series.includes('3')) return 'series-3';
+  if (series.includes('4')) return 'series-4';
+  if (series.includes('5')) return 'series-5';
+  if (series.includes('Sticker')) return 'series-sticker';
+  return '';
+}
+
+function buildFilters() {
+  const series = ['All', ...new Set(cards.map(c => c.series))];
+  const container = document.getElementById('filters');
+  container.innerHTML = series.map(s =>
+    `<button class="filter-btn ${s === activeFilter ? 'active' : ''}" onclick="setFilter('${s}', this)">${s === 'All' ? 'All' : s.replace('Series ', 'S').replace(' (', ' (')}</button>`
+  ).join('');
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards();
+}
+
+function getFiltered() {
+  const q = document.getElementById('search').value.toLowerCase();
+  return cards.filter(c => {
+    if (activeFilter !== 'All' && c.series !== activeFilter) return false;
+    if (q) {
+      const searchable = `${c.number} ${c.name} ${c.notes} ${c.grade} ${Object.values(c.customFields || {}).join(' ')}`.toLowerCase();
+      if (!searchable.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    let av = a[sortKey] || '', bv = b[sortKey] || '';
+    if (sortKey === 'number') {
+      const an = a.number.startsWith('S') ? 1000 + parseInt(a.number.slice(1)) : parseInt(a.number);
+      const bn = b.number.startsWith('S') ? 1000 + parseInt(b.number.slice(1)) : parseInt(b.number);
+      return (an - bn) * sortDir;
+    }
+    if (sortKey === 'value' || sortKey === 'valueRangeLow') {
+      av = parseFloat(av) || 0;
+      bv = parseFloat(bv) || 0;
+      return (av - bv) * sortDir;
+    }
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+}
+
+function renderCards() {
+  const filtered = getFiltered();
+
+  if (currentView === 'grid') renderGrid(filtered);
+  else renderTable(filtered);
+
+  updateStats();
+}
+
+function renderGrid(filtered) {
+  const grid = document.getElementById('card-grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state"><p>No cards match your search.</p></div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(c => `
+    <div class="card-tile ${getSeriesClass(c.series)}" onclick="openCard(${c.id})">
+      ${c.grade ? `<div class="grade-badge">${c.grade}</div>` : ''}
+      <div class="image-wrap">
+        <img src="${c.image}" alt="${c.name}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 280%22><rect fill=%22%231a1a3a%22 width=%22200%22 height=%22280%22/><text fill=%22%23666%22 x=%22100%22 y=%22140%22 text-anchor=%22middle%22 font-size=%2214%22>No Image</text></svg>'">
+      </div>
+      <div class="card-info">
+        <div class="card-number">#${c.number}</div>
+        <div class="card-name">${c.name}</div>
+        <div class="card-meta">
+          ${c.value ? '$' + parseFloat(c.value).toLocaleString() : ''}
+          ${c.value && c.grade ? ' &middot; ' : ''}
+          ${c.grade ? c.grade : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTable(filtered) {
+  const tbody = document.getElementById('card-tbody');
+  tbody.innerHTML = filtered.map(c => `
+    <tr onclick="openCard(${c.id})">
+      <td><img class="thumb" src="${c.image}" alt="" onerror="this.style.display='none'"></td>
+      <td><span class="card-number ${getSeriesClass(c.series)}" style="font-size:0.85rem">#${c.number}</span></td>
+      <td>${c.name}</td>
+      <td style="color:var(--text-muted);font-size:0.85rem">${c.series}</td>
+      <td>${c.grade || '—'}</td>
+      <td>${c.value ? '$' + parseFloat(c.value).toLocaleString() : '—'}</td>
+      <td style="font-size:0.85rem">${c.valueRangeLow && c.valueRangeHigh ? '$' + c.valueRangeLow + ' – $' + c.valueRangeHigh : '—'}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted)">${c.notes || ''}</td>
+    </tr>
+  `).join('');
+}
+
+function setView(v, btn) {
+  currentView = v;
+  document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('card-grid').style.display = v === 'grid' ? 'grid' : 'none';
+  document.getElementById('card-table-wrap').style.display = v === 'table' ? 'block' : 'none';
+  renderCards();
+}
+
+function sortTable(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  renderCards();
+}
+
+// ── Detail Modal ──
+
+function openCard(id) {
+  currentCardId = id;
+  const card = cards.find(c => c.id === id);
+  if (!card) return;
+
+  document.getElementById('modal-title').textContent = `#${card.number} — ${card.name}`;
+  document.getElementById('modal-img').src = card.image;
+
+  const fields = document.getElementById('modal-fields');
+  fields.innerHTML = `
+    <div class="field-group">
+      <label>Card Number</label>
+      <input type="text" id="edit-number" value="${card.number}">
+    </div>
+    <div class="field-group">
+      <label>Card Name</label>
+      <input type="text" id="edit-name" value="${escHtml(card.name)}">
+    </div>
+    <div class="field-group">
+      <label>Series</label>
+      <select id="edit-series">
+        ${['Series 1 (Blue)','Series 2 (Red)','Series 3 (Yellow)','Series 4 (Green)','Series 5 (Orange)','Stickers']
+          .map(s => `<option ${s===card.series?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Grade</label>
+        <input type="text" id="edit-grade" value="${card.grade || ''}" placeholder="e.g. PSA 8, VG, NM">
+      </div>
+      <div class="field-group">
+        <label>Estimated Value ($)</label>
+        <input type="number" id="edit-value" value="${card.value || ''}" placeholder="0.00" step="0.01">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Value Range Low ($)</label>
+        <input type="number" id="edit-valueRangeLow" value="${card.valueRangeLow || ''}" placeholder="0.00" step="0.01">
+      </div>
+      <div class="field-group">
+        <label>Value Range High ($)</label>
+        <input type="number" id="edit-valueRangeHigh" value="${card.valueRangeHigh || ''}" placeholder="0.00" step="0.01">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Notes</label>
+      <textarea id="edit-notes" placeholder="Condition details, provenance, etc.">${card.notes || ''}</textarea>
+    </div>
+    <div class="custom-fields-header">
+      <h3>Custom Fields</h3>
+      <button onclick="addCustomField()">+ Add Field</button>
+    </div>
+    <div id="custom-fields-container"></div>
+  `;
+
+  renderCustomFields(card);
+  document.getElementById('detail-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderCustomFields(card) {
+  const container = document.getElementById('custom-fields-container');
+  const cf = card.customFields || {};
+  const allKeys = new Set([...customFieldDefs, ...Object.keys(cf)]);
+
+  container.innerHTML = [...allKeys].map(key => `
+    <div class="custom-field-row">
+      <div class="field-group">
+        <label>Field Name</label>
+        <input type="text" class="cf-key" value="${escHtml(key)}">
+      </div>
+      <div class="field-group">
+        <label>Value</label>
+        <input type="text" class="cf-val" value="${escHtml(cf[key] || '')}">
+      </div>
+      <button class="danger" onclick="this.parentElement.remove()" title="Remove">&times;</button>
+    </div>
+  `).join('');
+}
+
+function addCustomField() {
+  const container = document.getElementById('custom-fields-container');
+  const row = document.createElement('div');
+  row.className = 'custom-field-row';
+  row.innerHTML = `
+    <div class="field-group">
+      <label>Field Name</label>
+      <input type="text" class="cf-key" placeholder="e.g. Centering, Seller">
+    </div>
+    <div class="field-group">
+      <label>Value</label>
+      <input type="text" class="cf-val" placeholder="">
+    </div>
+    <button class="danger" onclick="this.parentElement.remove()" title="Remove">&times;</button>
+  `;
+  container.appendChild(row);
+}
+
+function saveCard() {
+  const card = cards.find(c => c.id === currentCardId);
+  if (!card) return;
+
+  card.number = document.getElementById('edit-number').value.trim();
+  card.name = document.getElementById('edit-name').value.trim();
+  card.series = document.getElementById('edit-series').value;
+  card.grade = document.getElementById('edit-grade').value.trim();
+  card.value = document.getElementById('edit-value').value.trim();
+  card.valueRangeLow = document.getElementById('edit-valueRangeLow').value.trim();
+  card.valueRangeHigh = document.getElementById('edit-valueRangeHigh').value.trim();
+  card.notes = document.getElementById('edit-notes').value.trim();
+
+  card.customFields = {};
+  document.querySelectorAll('.custom-field-row').forEach(row => {
+    const key = row.querySelector('.cf-key').value.trim();
+    const val = row.querySelector('.cf-val').value.trim();
+    if (key) {
+      card.customFields[key] = val;
+      if (!customFieldDefs.includes(key)) customFieldDefs.push(key);
+    }
+  });
+
+  save();
+  renderCards();
+  toast('Card saved');
+}
+
+function deleteCard() {
+  if (!confirm('Delete this card from your collection?')) return;
+  cards = cards.filter(c => c.id !== currentCardId);
+  save();
+  closeModal();
+  renderCards();
+  toast('Card deleted');
+}
+
+function navigateCard(dir) {
+  const filtered = getFiltered();
+  const idx = filtered.findIndex(c => c.id === currentCardId);
+  if (idx < 0) return;
+  const next = filtered[idx + dir];
+  if (next) openCard(next.id);
+}
+
+function closeModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── Image Replace ──
+
+function triggerImageReplace() {
+  document.getElementById('replace-image-input').click();
+}
+
+function handleImageReplace(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const card = cards.find(c => c.id === currentCardId);
+    if (card) {
+      card.image = ev.target.result;
+      document.getElementById('modal-img').src = ev.target.result;
+      save();
+      renderCards();
+      toast('Image updated');
+    }
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+// ── Add Card ──
+
+function openAddCard() {
+  document.getElementById('add-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAddModal() {
+  document.getElementById('add-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function addNewCard() {
+  const number = document.getElementById('add-number').value.trim();
+  const name = document.getElementById('add-name').value.trim();
+  const series = document.getElementById('add-series').value;
+  if (!number || !name) { alert('Number and name are required.'); return; }
+
+  const maxId = Math.max(0, ...cards.map(c => c.id));
+  const newCard = {
+    id: maxId + 1, number, name, series,
+    image: '', grade: '', value: '',
+    valueRangeLow: '', valueRangeHigh: '',
+    notes: '', customFields: {}
+  };
+
+  const fileInput = document.getElementById('add-image');
+  if (fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      newCard.image = ev.target.result;
+      cards.push(newCard);
+      save();
+      buildFilters();
+      renderCards();
+      closeAddModal();
+      toast('Card added');
+      clearAddForm();
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    cards.push(newCard);
+    save();
+    buildFilters();
+    renderCards();
+    closeAddModal();
+    toast('Card added');
+    clearAddForm();
+  }
+}
+
+function clearAddForm() {
+  document.getElementById('add-number').value = '';
+  document.getElementById('add-name').value = '';
+  document.getElementById('add-image').value = '';
+}
+
+// ── Import / Export ──
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify({ cards, customFieldDefs }, null, 2)], { type: 'application/json' });
+  downloadBlob(blob, 'star-wars-cards.json');
+  toast('JSON exported');
+  closeDropdowns();
+}
+
+function exportCSV() {
+  const allCustomKeys = [...new Set(cards.flatMap(c => Object.keys(c.customFields || {})))];
+  const headers = ['Number', 'Name', 'Series', 'Grade', 'Value', 'Value Range Low', 'Value Range High', 'Notes', ...allCustomKeys];
+  const rows = cards.map(c => [
+    c.number, `"${c.name}"`, c.series, c.grade, c.value,
+    c.valueRangeLow, c.valueRangeHigh, `"${(c.notes||'').replace(/"/g,'""')}"`,
+    ...allCustomKeys.map(k => `"${((c.customFields||{})[k]||'').replace(/"/g,'""')}"`)
+  ]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  downloadBlob(new Blob([csv], { type: 'text/csv' }), 'star-wars-cards.csv');
+  toast('CSV exported');
+  closeDropdowns();
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      cards = data.cards || data;
+      customFieldDefs = data.customFieldDefs || [];
+      save();
+      buildFilters();
+      renderCards();
+      toast('Collection imported');
+    } catch { alert('Invalid JSON file.'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+  closeDropdowns();
+}
+
+function downloadBlob(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── Dropdown ──
+
+function toggleDropdown(btn) {
+  const menu = btn.nextElementSibling;
+  const isOpen = menu.classList.contains('open');
+  closeDropdowns();
+  if (!isOpen) menu.classList.add('open');
+}
+
+function closeDropdowns() {
+  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dropdown')) closeDropdowns();
+});
+
+// ── Keyboard ──
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('detail-modal').classList.contains('open')) {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'ArrowLeft') navigateCard(-1);
+    if (e.key === 'ArrowRight') navigateCard(1);
+  }
+  if (document.getElementById('add-modal').classList.contains('open') && e.key === 'Escape') closeAddModal();
+});
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+init();
+</script>
+</body>
+</html>
