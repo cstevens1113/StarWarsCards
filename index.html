@@ -1178,27 +1178,51 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-// ── Image Replace ──
+// ── Image Resize & Replace ──
+
+function resizeImage(file, maxDim = 800) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const img = new Image();
+      img.onload = function() {
+        let w = img.width, h = img.height;
+        if (w <= maxDim && h <= maxDim) {
+          resolve(ev.target.result);
+          return;
+        }
+        const ratio = Math.min(maxDim / w, maxDim / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 function triggerImageReplace() {
   document.getElementById('replace-image-input').click();
 }
 
-function handleImageReplace(e) {
+async function handleImageReplace(e) {
   const file = e.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    const card = cards.find(c => c.id === currentCardId);
-    if (card) {
-      card.image = ev.target.result;
-      document.getElementById('modal-img').src = ev.target.result;
-      save();
-      renderCards();
-      toast('Image updated');
-    }
-  };
-  reader.readAsDataURL(file);
+  const dataUrl = await resizeImage(file);
+  const card = cards.find(c => c.id === currentCardId);
+  if (card) {
+    card.image = dataUrl;
+    document.getElementById('modal-img').src = dataUrl;
+    save();
+    renderCards();
+    toast('Image updated');
+  }
   e.target.value = '';
 }
 
@@ -1241,9 +1265,8 @@ function addNewCard() {
 
   const fileInput = document.getElementById('add-image');
   if (fileInput.files[0]) {
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      newCard.image = ev.target.result;
+    resizeImage(fileInput.files[0]).then(dataUrl => {
+      newCard.image = dataUrl;
       cards.push(newCard);
       save();
       buildFilters();
@@ -1251,8 +1274,7 @@ function addNewCard() {
       closeAddModal();
       toast('Card added');
       clearAddForm();
-    };
-    reader.readAsDataURL(fileInput.files[0]);
+    });
   } else {
     cards.push(newCard);
     save();
