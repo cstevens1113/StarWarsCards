@@ -772,11 +772,14 @@ async function loadFromGitHub() {
   const meta = await resp.json();
   fileSha = meta.sha;
 
-  const content = atob(meta.content.replace(/\n/g, ''));
+  const raw = atob(meta.content.replace(/\n/g, ''));
+  const content = decodeURIComponent(escape(raw));
   const data = JSON.parse(content);
   cards = data.cards || [];
   customFieldDefs = data.customFieldDefs || [];
 }
+
+let saving = false;
 
 function save() {
   localStorage.setItem('sw_cards_local', JSON.stringify({ cards, customFieldDefs }));
@@ -784,7 +787,18 @@ function save() {
   saveTimeout = setTimeout(() => saveToGitHub(), 1500);
 }
 
-async function saveToGitHub() {
+async function fetchCurrentSha() {
+  const token = getToken();
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}`;
+  const headers = { 'Accept': 'application/vnd.github.v3+json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const resp = await fetch(url, { headers });
+  if (!resp.ok) throw new Error(`SHA fetch failed: ${resp.status}`);
+  const meta = await resp.json();
+  return meta.sha;
+}
+
+async function saveToGitHub(retryCount = 0) {
   const token = getToken();
   if (!token) {
     toast('Set your GitHub token in Settings to save for all users');
@@ -792,6 +806,8 @@ async function saveToGitHub() {
     return;
   }
 
+  if (saving) return;
+  saving = true;
   updateSyncUI('saving');
 
   const payload = JSON.stringify({ cards, customFieldDefs }, null, 2);
@@ -799,12 +815,17 @@ async function saveToGitHub() {
 
   try {
     const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}`;
+
+    if (!fileSha) {
+      fileSha = await fetchCurrentSha();
+    }
+
     const body = {
       message: 'Update collection data',
       content: encoded,
+      sha: fileSha,
       branch: 'main'
     };
-    if (fileSha) body.sha = fileSha;
 
     const resp = await fetch(url, {
       method: 'PUT',
@@ -815,6 +836,12 @@ async function saveToGitHub() {
       },
       body: JSON.stringify(body)
     });
+
+    if (resp.status === 409 && retryCount < 2) {
+      fileSha = await fetchCurrentSha();
+      saving = false;
+      return saveToGitHub(retryCount + 1);
+    }
 
     if (!resp.ok) {
       const err = await resp.json();
@@ -829,6 +856,8 @@ async function saveToGitHub() {
     console.error('GitHub save failed:', e);
     updateSyncUI('error');
     toast('Save failed: ' + e.message);
+  } finally {
+    saving = false;
   }
 }
 
