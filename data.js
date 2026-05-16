@@ -1,8 +1,8 @@
 const CARDS_DATA = [
   { id: 1, number: "1", name: "Luke Skywalker", series: "Series 1 (Blue)", image: "images/001 - Luke Skywalker.png", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
-  { id: 2, number: "2", name: "See-Threepio and Artoo-Detoo", series: "Series 1 (Blue)", image: "images/002 - See-Threepio and Artoo-Detoo.jpg", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
-  { id: 3, number: "4", name: "Space Pirate Han Solo", series: "Series 1 (Blue)", image: "images/004 - Space Pirate Han Solo.jpg", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
-  { id: 4, number: "5", name: "Princess Leia Organa", series: "Series 1 (Blue)", image: "images/005 - Princess Leia Organa.jpg", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
+  { id: 2, number: "2", name: "See-Threepio and Artoo-Detoo", series: "Series 1 (Blue)", image: "images/002 - See-Threepio and Artoo-Detoo.png", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
+  { id: 3, number: "4", name: "Space Pirate Han Solo", series: "Series 1 (Blue)", image: "images/004 - Space Pirate Han Solo.png", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
+  { id: 4, number: "5", name: "Princess Leia Organa", series: "Series 1 (Blue)", image: "images/005 - Princess Leia Organa.png", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
   { id: 5, number: "7", name: "The Villainous Darth Vader", series: "Series 1 (Blue)", image: "images/007 - The Villainous Darth Vader.jpg", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
   { id: 6, number: "8", name: "Grand Moff Tarkin", series: "Series 1 (Blue)", image: "images/008 - Grand Moff Tarkin.jpg", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
   { id: 7, number: "30", name: "Han in the Millennium Falcon", series: "Series 1 (Blue)", image: "images/030 - Han in the Millennium Falcon.jpg", grade: "", value: "", valueRangeLow: "", valueRangeHigh: "", notes: "", customFields: {} },
