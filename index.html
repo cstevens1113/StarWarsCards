@@ -762,19 +762,31 @@ async function init() {
 }
 
 async function loadFromGitHub() {
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}`;
+  const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}`;
   const headers = { 'Accept': 'application/vnd.github.v3+json' };
   const token = getToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const resp = await fetch(url, { headers });
-  if (!resp.ok) throw new Error(`GitHub API ${resp.status}`);
-  const meta = await resp.json();
+  // Get file metadata (SHA + download_url or content)
+  const metaResp = await fetch(apiUrl, { headers });
+  if (!metaResp.ok) throw new Error(`GitHub API ${metaResp.status}`);
+  const meta = await metaResp.json();
   fileSha = meta.sha;
 
-  const raw = atob(meta.content.replace(/\n/g, ''));
-  const content = decodeURIComponent(escape(raw));
-  const data = JSON.parse(content);
+  let data;
+  if (meta.content && meta.encoding === 'base64') {
+    // Small file: content is inline base64
+    const raw = atob(meta.content.replace(/\n/g, ''));
+    const content = decodeURIComponent(escape(raw));
+    data = JSON.parse(content);
+  } else {
+    // Large file (>1MB): fetch from raw URL with cache-bust
+    const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${DATA_FILE}?t=${Date.now()}`;
+    const rawResp = await fetch(rawUrl);
+    if (!rawResp.ok) throw new Error(`Raw fetch ${rawResp.status}`);
+    data = await rawResp.json();
+  }
+
   cards = data.cards || [];
   customFieldDefs = data.customFieldDefs || [];
 }
@@ -810,7 +822,15 @@ async function saveToGitHub(retryCount = 0) {
   saving = true;
   updateSyncUI('saving');
 
-  const payload = JSON.stringify({ cards, customFieldDefs }, null, 2);
+  // Strip base64 image data for GitHub (keep only file paths)
+  // Base64 images stay in localStorage for the local user
+  const cleanCards = cards.map(c => {
+    if (c.image && c.image.startsWith('data:')) {
+      return { ...c, image: '' };
+    }
+    return c;
+  });
+  const payload = JSON.stringify({ cards: cleanCards, customFieldDefs }, null, 2);
   const encoded = btoa(unescape(encodeURIComponent(payload)));
 
   try {
