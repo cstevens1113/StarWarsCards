@@ -10,9 +10,9 @@
       "value": "",
       "valueRangeLow": "",
       "valueRangeHigh": "",
-      "notes": "Rotated 90 degrees",
+      "notes": "",
       "customFields": {},
-      "rotation": 90
+      "rotation": 0
     },
     {
       "id": 2,
@@ -34,8 +34,8 @@
       "name": "Space Pirate Han Solo",
       "series": "Series 1 (Blue)",
       "image": "",
-      "grade": "PSA 7",
-      "value": "45.00",
+      "grade": "",
+      "value": "",
       "valueRangeLow": "",
       "valueRangeHigh": "",
       "notes": "",
