@@ -1256,6 +1256,37 @@ function resizeImage(file, maxDim = 800) {
   });
 }
 
+async function uploadImageToGitHub(dataUrl, cardNumber) {
+  const token = getToken();
+  if (!token) return null;
+
+  const base64Data = dataUrl.split(',')[1];
+  const safeName = String(cardNumber).replace(/[^a-zA-Z0-9_-]/g, '_');
+  const filePath = `images/card_${safeName}_${Date.now()}.jpg`;
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
+
+  const resp = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.v3+json'
+    },
+    body: JSON.stringify({
+      message: `Add image for card #${cardNumber}`,
+      content: base64Data,
+      branch: 'main'
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.message || `Image upload failed: ${resp.status}`);
+  }
+
+  return filePath;
+}
+
 function triggerImageReplace() {
   document.getElementById('replace-image-input').click();
 }
@@ -1263,14 +1294,38 @@ function triggerImageReplace() {
 async function handleImageReplace(e) {
   const file = e.target.files[0];
   if (!file) return;
-  const dataUrl = await resizeImage(file);
+
   const card = cards.find(c => c.id === currentCardId);
-  if (card) {
+  if (!card) return;
+
+  const dataUrl = await resizeImage(file);
+
+  // Show immediately in the modal
+  document.getElementById('modal-img').src = dataUrl;
+  toast('Uploading image...');
+
+  const token = getToken();
+  if (token) {
+    try {
+      const filePath = await uploadImageToGitHub(dataUrl, card.number);
+      if (filePath) {
+        card.image = filePath;
+        save();
+        renderCards();
+        toast('Image saved for all users');
+      }
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      card.image = dataUrl;
+      save();
+      renderCards();
+      toast('Image saved locally only: ' + err.message);
+    }
+  } else {
     card.image = dataUrl;
-    document.getElementById('modal-img').src = dataUrl;
     save();
     renderCards();
-    toast('Image updated');
+    toast('Image saved locally (set token in Settings to share)');
   }
   e.target.value = '';
 }
@@ -1314,8 +1369,19 @@ function addNewCard() {
 
   const fileInput = document.getElementById('add-image');
   if (fileInput.files[0]) {
-    resizeImage(fileInput.files[0]).then(dataUrl => {
-      newCard.image = dataUrl;
+    resizeImage(fileInput.files[0]).then(async (dataUrl) => {
+      const token = getToken();
+      if (token) {
+        try {
+          const filePath = await uploadImageToGitHub(dataUrl, number);
+          newCard.image = filePath;
+        } catch (err) {
+          console.error('Image upload failed:', err);
+          newCard.image = dataUrl;
+        }
+      } else {
+        newCard.image = dataUrl;
+      }
       cards.push(newCard);
       save();
       buildFilters();
