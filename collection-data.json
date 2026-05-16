@@ -65,8 +65,8 @@
       "grade": "",
       "value": "",
       "valueRangeLow": "",
-      "valueRangeHigh": "",
-      "notes": "",
+      "valueRangeHigh": "206250.00",
+      "notes": "1977 Topps Star Wars #7 titled \"The Villainous Darth Vader\" that has been graded PSA Gem Mint 10 with of POP of 5. Sold on May 5, 2026 for: $206,250.00",
       "customFields": {},
       "rotation": 0
     },
@@ -422,10 +422,10 @@
     },
     {
       "id": 31,
-      "number": "235",
+      "number": "225",
       "name": "Luke Skywalker (Mark Hamill)",
       "series": "Series 4 (Green)",
-      "image": "images/235 - Luke Skywalker (Mark Hamill).png",
+      "image": "",
       "grade": "",
       "value": "",
       "valueRangeLow": "",
