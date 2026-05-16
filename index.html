@@ -1231,6 +1231,7 @@ function closeModal() {
 
 function resizeImage(file, maxDim = 800) {
   return new Promise((resolve) => {
+    const isPng = file.type === 'image/png';
     const reader = new FileReader();
     reader.onload = function(ev) {
       const img = new Image();
@@ -1248,7 +1249,7 @@ function resizeImage(file, maxDim = 800) {
         canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.82));
+        resolve(isPng ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', 0.82));
       };
       img.src = ev.target.result;
     };
@@ -1261,8 +1262,10 @@ async function uploadImageToGitHub(dataUrl, cardNumber) {
   if (!token) return null;
 
   const base64Data = dataUrl.split(',')[1];
+  const isPng = dataUrl.startsWith('data:image/png');
+  const ext = isPng ? 'png' : 'jpg';
   const safeName = String(cardNumber).replace(/[^a-zA-Z0-9_-]/g, '_');
-  const filePath = `images/card_${safeName}_${Date.now()}.jpg`;
+  const filePath = `images/card_${safeName}_${Date.now()}.${ext}`;
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
 
   const resp = await fetch(url, {
